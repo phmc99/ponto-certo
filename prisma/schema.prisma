@@ -9,7 +9,7 @@ datasource db {
 
 model Sector {
   id       String     @id @default(uuid())
-  name     String
+  name     String     @unique
   Employee Employee[]
 
   @@map("sectors")
@@ -18,7 +18,7 @@ model Sector {
 model Employee {
   id       String    @id @default(uuid())
   name     String
-  email    String
+  email    String    @unique
   sector   Sector    @relation(fields: [sectorId], references: [id])
   sectorId String
   ClockIn  ClockIn[]
