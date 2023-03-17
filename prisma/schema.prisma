@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Sector {
+  id       String     @id @default(uuid())
+  name     String
+  Employee Employee[]
+
+  @@map("sectors")
+}
+
+model Employee {
+  id       String    @id @default(uuid())
+  name     String
+  email    String
+  sector   Sector    @relation(fields: [sectorId], references: [id])
+  sectorId String
+  ClockIn  ClockIn[]
+
+  @@map("employees")
+}
+
+model ClockIn {
+  id         String   @id @default(uuid())
+  date       DateTime @default(now())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+
+  @@map("clockins")
+}
