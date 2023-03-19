@@ -23,7 +23,7 @@ model Employee {
   password String
   sector   Sector    @relation(fields: [sectorId], references: [id])
   sectorId String
-  ClockIn  ClockIn[]
+  clockIn  ClockIn[]
 
   @@map("employees")
 }

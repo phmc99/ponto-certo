@@ -2,15 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/PrismaService';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import hashPasswordHook from './helpers/hash';
+import { isValidCpf } from './helpers/validateCpf';
 
 @Injectable()
 export class EmployeeService {
   constructor(private prisma: PrismaService) {}
   async create(createEmployeeDto: CreateEmployeeDto) {
-    createEmployeeDto.email = createEmployeeDto.email.toLowerCase();
+    if (!isValidCpf(createEmployeeDto.cpf)) {
+      throw new Error('Invalid CPF');
+    }
+
     const employeeExists = await this.prisma.employee.findFirst({
       where: {
-        name: createEmployeeDto.email,
+        name: createEmployeeDto.cpf,
       },
     });
 
@@ -18,8 +23,19 @@ export class EmployeeService {
       throw new Error('Employee already exists');
     }
 
+    const data = await hashPasswordHook({ ...createEmployeeDto });
+
     const employee = await this.prisma.employee.create({
-      data: createEmployeeDto,
+      data,
+      select: {
+        id: true,
+        name: true,
+        sector: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     return employee;
@@ -30,7 +46,6 @@ export class EmployeeService {
       select: {
         id: true,
         name: true,
-        email: true,
         sector: {
           select: {
             name: true,
@@ -47,12 +62,13 @@ export class EmployeeService {
       select: {
         id: true,
         name: true,
-        email: true,
+        cpf: true,
         sector: {
           select: {
             name: true,
           },
         },
+        clockIn: true,
       },
     });
 
@@ -64,10 +80,10 @@ export class EmployeeService {
   }
 
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
-    updateEmployeeDto.email = updateEmployeeDto.email.toLowerCase();
+    updateEmployeeDto.cpf = updateEmployeeDto.cpf.toLowerCase();
     const employeeExists = await this.prisma.employee.findFirst({
       where: {
-        name: updateEmployeeDto.email,
+        name: updateEmployeeDto.cpf,
       },
     });
 
