@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/PrismaService';
+import { paginate } from 'src/utils/paginate';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import hashPasswordHook from './helpers/hash';
@@ -41,7 +42,7 @@ export class EmployeeService {
     return employee;
   }
 
-  async findAll() {
+  async findAll(page = 1, perPage: number) {
     const employees = await this.prisma.employee.findMany({
       select: {
         id: true,
@@ -53,7 +54,7 @@ export class EmployeeService {
         },
       },
     });
-    return employees;
+    return paginate(employees, page, perPage);
   }
 
   async findOne(id: string) {

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { ClockinService } from './clockin.service';
 import { CreateClockinDto } from './dto/create-clockin.dto';
 import { UpdateClockinDto } from './dto/update-clockin.dto';
@@ -13,8 +21,8 @@ export class ClockinController {
   }
 
   @Get()
-  findAll() {
-    return this.clockinService.findAll();
+  findAll(@Query('page') page: string, @Query('perPage') perPage: string) {
+    return this.clockinService.findAll(+page, +perPage);
   }
 
   @Patch(':id')
@@ -23,7 +31,11 @@ export class ClockinController {
   }
 
   @Get('/employee/:id')
-  findAllByEmployee(@Param('id') id: string) {
-    return this.clockinService.findAllByEmployee(id);
+  findAllByEmployee(
+    @Param('id') id: string,
+    @Query('page') page: string,
+    @Query('perPage') perPage: string,
+  ) {
+    return this.clockinService.findAllByEmployee(id, +page, +perPage);
   }
 }

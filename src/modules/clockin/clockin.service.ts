@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateClockinDto } from './dto/create-clockin.dto';
 import { PrismaService } from '../../database/PrismaService';
 import { UpdateClockinDto } from './dto/update-clockin.dto';
+import { paginate } from 'src/utils/paginate';
 
 @Injectable()
 export class ClockinService {
@@ -22,7 +23,7 @@ export class ClockinService {
     return clockIn;
   }
 
-  async findAll() {
+  async findAll(page = 1, perPage: number) {
     const clockIns = await this.prisma.clockIn.findMany({
       select: {
         id: true,
@@ -41,10 +42,10 @@ export class ClockinService {
         date: 'desc',
       },
     });
-    return clockIns;
+    return paginate(clockIns, page, perPage);
   }
 
-  async findAllByEmployee(employeeId: string) {
+  async findAllByEmployee(employeeId: string, page = 1, perPage: number) {
     const clockIns = await this.prisma.clockIn.findMany({
       where: { employeeId },
       select: {
@@ -64,7 +65,7 @@ export class ClockinService {
         date: 'desc',
       },
     });
-    return clockIns;
+    return paginate(clockIns, page, perPage);
   }
 
   async update(id: string, updateClockinDto: UpdateClockinDto) {

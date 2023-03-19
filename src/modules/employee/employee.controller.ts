@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -21,8 +22,8 @@ export class EmployeeController {
   }
 
   @Get()
-  findAll() {
-    return this.employeeService.findAll();
+  findAll(@Query('page') page: string, @Query('perPage') perPage: string) {
+    return this.employeeService.findAll(+page, +perPage);
   }
 
   @Get(':id')
