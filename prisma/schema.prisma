@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -17,8 +17,10 @@ model Sector {
 
 model Employee {
   id       String    @id @default(uuid())
+  isAdmin  Boolean   @default(false)
   name     String
-  email    String    @unique
+  cpf      String    @unique
+  password String
   sector   Sector    @relation(fields: [sectorId], references: [id])
   sectorId String
   ClockIn  ClockIn[]
@@ -27,10 +29,18 @@ model Employee {
 }
 
 model ClockIn {
-  id         String   @id @default(uuid())
-  date       DateTime @default(now())
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId String
+  id            String      @id @default(uuid())
+  date          DateTime    @default(now())
+  updateDate    DateTime    @updatedAt
+  updateMessage String      @default("")
+  type          ClockInType
+  employee      Employee    @relation(fields: [employeeId], references: [id])
+  employeeId    String
 
   @@map("clockins")
+}
+
+enum ClockInType {
+  entrada
+  saida
 }
