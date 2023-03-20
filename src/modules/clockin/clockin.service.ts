@@ -128,8 +128,11 @@ export class ClockinService {
 
     const conteudoDoArquivo = fs.readFileSync('./src/utils/temp/data.csv');
 
+    console.log(process.env.SENDER_EMAIL);
+
     await this.mailer.sendMail({
       to: receiver,
+      from: process.env.SENDER_EMAIL,
       subject: 'Relatorio de pontos',
       html: 'Marcação de pontos de todos os funcionarios',
       attachments: [
