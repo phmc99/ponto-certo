@@ -80,6 +80,18 @@ export class EmployeeService {
     return employee;
   }
 
+  async findByCpf(cpf: string) {
+    const employee = await this.prisma.employee.findFirst({
+      where: { cpf },
+    });
+
+    if (!employee) {
+      throw new Error('Employee not found');
+    }
+
+    return employee;
+  }
+
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
     updateEmployeeDto.cpf = updateEmployeeDto.cpf.toLowerCase();
     const employeeExists = await this.prisma.employee.findFirst({

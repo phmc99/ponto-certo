@@ -4,12 +4,15 @@ import { EmployeeModule } from './modules/employee/employee.module';
 import { ClockinModule } from './modules/clockin/clockin.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
     SectorModule,
     EmployeeModule,
     ClockinModule,
+    AuthModule,
     ConfigModule.forRoot(),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,6 +29,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         },
       }),
       inject: [ConfigService],
+    }),
+    JwtModule.register({
+      secret: process.env.SECRET_JWT,
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [],

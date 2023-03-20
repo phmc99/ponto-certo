@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ClockinService } from './clockin.service';
 import { CreateClockinDto } from './dto/create-clockin.dto';
 import { UpdateClockinDto } from './dto/update-clockin.dto';
@@ -15,6 +17,7 @@ import { UpdateClockinDto } from './dto/update-clockin.dto';
 export class ClockinController {
   constructor(private readonly clockinService: ClockinService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   create(@Body() createClockinDto: CreateClockinDto) {
     return this.clockinService.create(createClockinDto);
