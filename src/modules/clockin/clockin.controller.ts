@@ -38,4 +38,10 @@ export class ClockinController {
   ) {
     return this.clockinService.findAllByEmployee(id, +page, +perPage);
   }
+
+  @Post('/record/daily')
+  generateDailyRecord(@Body() body: { receiver: string | string[] }) {
+    const { receiver } = body;
+    return this.clockinService.generateDailyRecord(receiver);
+  }
 }

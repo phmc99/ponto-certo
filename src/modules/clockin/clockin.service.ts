@@ -3,10 +3,13 @@ import { CreateClockinDto } from './dto/create-clockin.dto';
 import { PrismaService } from '../../database/PrismaService';
 import { UpdateClockinDto } from './dto/update-clockin.dto';
 import { paginate } from 'src/utils/paginate';
+import { MailerService } from '@nestjs-modules/mailer';
+import * as fs from 'fs';
+import { csvWrite } from 'src/utils/csvWrite';
 
 @Injectable()
 export class ClockinService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private mailer: MailerService) {}
 
   async create(createClockinDto: CreateClockinDto) {
     const employee = await this.prisma.employee.findFirst({
@@ -79,5 +82,64 @@ export class ClockinService {
     }
 
     return { ...clockIn, status: 'updated' };
+  }
+
+  async generateDailyRecord(receiver: string | string[]) {
+    const clockIns = await this.prisma.clockIn.findMany({
+      select: {
+        date: true,
+        updateDate: true,
+        updateMessage: true,
+        type: true,
+        employee: {
+          select: {
+            name: true,
+            cpf: true,
+            sector: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const dailyClockins = clockIns.filter((item) => {
+      const nowDay = new Date().getDay();
+      const itemDay = new Date(item.date).getDay();
+
+      if (itemDay === nowDay) {
+        return item;
+      }
+    });
+
+    const mapClockins = dailyClockins.map((item) => ({
+      name: item.employee.name,
+      cpf: item.employee.cpf,
+      sector: item.employee.sector.name,
+      type: item.type,
+      date: item.date,
+      updateDate: item.updateDate,
+      updateMessage: item.updateMessage,
+    }));
+
+    await csvWrite(mapClockins);
+
+    const conteudoDoArquivo = fs.readFileSync('./src/utils/temp/data.csv');
+
+    await this.mailer.sendMail({
+      to: receiver,
+      subject: 'Relatorio de pontos',
+      html: 'Marcação de pontos de todos os funcionarios',
+      attachments: [
+        {
+          filename: 'data.csv',
+          content: conteudoDoArquivo,
+        },
+      ],
+    });
+
+    return mapClockins;
   }
 }
