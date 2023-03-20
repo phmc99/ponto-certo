@@ -6,6 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './modules/auth/auth.module';
+import { MiddlewareModule } from './middlewares/middleware.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
     EmployeeModule,
     ClockinModule,
     AuthModule,
+    MiddlewareModule,
     ConfigModule.forRoot(),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
